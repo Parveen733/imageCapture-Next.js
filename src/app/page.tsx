@@ -1,95 +1,68 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+'use client'
+import React from 'react';
+import { useState, useEffect } from 'react';
+import CropSelection from './components/cropSelection';
+import ImageCapture from './components/imageCapture';
+import PastReport from './components/pastReport';
+// import LoadingAnimation from '../components/LoadingAnimation';
+import ReportView from './components/reportView';
+import {sendImageToAPI} from './services/api';
 
-export default function Home() {
+
+interface PageData {
+  selectedCrop: string; // Currently selected crop
+  isProcessing: boolean; // Flag indicating image processing status
+  reportData?: any; // Holds report data if available
+  error?: string; // Optional error message for API calls or image processing
+}
+
+export default function Home()  {
+  const [selectedCrop, setSelectedCrop] = useState('');
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [reportData, setReportData] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  // Handle crop selection, image capture, and report generation logic here
+  // (would involve API calls and state updates)
+  const handleImageCapture = async (imageData: string | Blob) => {
+      setIsProcessing(true);
+      setError(null); // Clear any previous error
+  
+      try {
+        // Replace with your actual API endpoint and data formatting
+        const response = await sendImageToAPI(
+          imageData, // Adjust based on image data type (base64 or Blob)
+        );
+  
+        setReportData(response.data);
+      } catch (error) {
+        console.error('Error generating report:', error);
+        setError('Failed to generate report. Please try again.');
+      } finally {
+        setIsProcessing(false);
+      }
+    };
+
   return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>src/app/page.tsx</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
-
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore starter templates for Next.js.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
+    <div>
+      <header>
+        {/* Header component */}
+      </header>
+      <main>
+        <CropSelection crops={['show Data','crop']} onSelectCrop={(value:any)=>setSelectedCrop(value)} />
+        {selectedCrop=="crop" ? (
+          <>
+            <ImageCapture onImageCaptured={handleImageCapture} />
+            {isProcessing}
+            {reportData && <ReportView crop={selectedCrop} {...reportData} />}
+          </>
+        ):<PastReport/>}
+        
+      </main>
+      <footer>
+        {/* Footer component */}
+      </footer>
+    </div>
   );
+
 }
